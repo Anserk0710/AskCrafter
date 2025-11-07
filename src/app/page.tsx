@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { motion, useScroll, useSpring } from "framer-motion";
 import {
   Hammer,
@@ -17,10 +18,17 @@ import {
   CheckCircle,
 } from "lucide-react";
 
+// ---------- Easing (tuple aman untuk TS) ----------
+const EASE = [0.22, 1, 0.36, 1] as [number, number, number, number];
+
 // ---------- Motion Variants ----------
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: EASE },
+  },
 };
 
 const stagger = {
@@ -31,7 +39,12 @@ const stagger = {
 
 const floatIn = (delay = 0) => ({
   hidden: { opacity: 0, scale: 0.98, y: 12 },
-  show: { opacity: 1, scale: 1, y: 0, transition: { delay, duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
+  show: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: { delay, duration: 0.55, ease: EASE },
+  },
 });
 
 // ---------- Helper Components ----------
@@ -94,11 +107,21 @@ const Button = ({
     variant === "solid"
       ? "bg-[var(--fg)] text-[var(--bg)] hover:opacity-90"
       : "border border-[var(--line)] bg-transparent text-[var(--fg)] hover:bg-[var(--surface-strong)]";
-  const El: any = href ? motion.a : motion.button;
+
+  if (href) {
+    // pakai Link untuk route internal; masih aman untuk #anchor juga
+    return (
+      <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} className={`${base} ${styles} ${className}`}>
+        <Link href={href} className="inline-flex items-center gap-2">
+          {children}
+        </Link>
+      </motion.div>
+    );
+  }
   return (
-    <El href={href} whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} className={`${base} ${styles} ${className}`}>
+    <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} className={`${base} ${styles} ${className}`}>
       {children}
-    </El>
+    </motion.button>
   );
 };
 
@@ -125,7 +148,7 @@ const AnnouncementBar = () => (
   </div>
 );
 
-// ---------- Dev Test Harness (toggle with ?test=1) ----------
+// ---------- Dev Test Harness (toggle dengan ?test=1) ----------
 function DevTests({ services, materials, gallery }: { services: any[]; materials: any[]; gallery: any[] }) {
   const [results, setResults] = useState<{ name: string; pass: boolean }[]>([]);
   useEffect(() => {
@@ -217,7 +240,7 @@ export default function LandingPage() {
     []
   );
 
-  // Theme + smooth anchor + DevTests toggle (no state derived from React itself)
+  // Theme + smooth anchor + DevTests toggle
   useEffect(() => {
     const prev = document.documentElement.getAttribute('data-theme');
     document.documentElement.setAttribute('data-theme', 'light');
@@ -246,18 +269,16 @@ export default function LandingPage() {
     };
   }, []);
 
-  // Fetch media (showcase) and articles from our API
+  // Fetch media (showcase) dan articles dari API
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
-        // /api/media -> { id, type, url, caption, ... }
         const m = await fetch("/api/media", { cache: "no-store" }).then(r => r.ok ? r.json() : []);
         const mapped: { type: "image" | "video"; url: string }[] = Array.isArray(m)
           ? m.map((x: any) => ({ type: (x.type === "video" ? "video" : "image"), url: String(x.url) }))
           : [];
 
-        // Ensure exactly 6 items for tests (fallback to Unsplash if kurang)
         const fallbacks = [
           { type: "image", url: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=2070&auto=format&fit=crop" },
           { type: "image", url: "https://images.unsplash.com/photo-1493666438817-866a91353ca9?q=80&w=2070&auto=format&fit=crop" },
@@ -282,7 +303,6 @@ export default function LandingPage() {
       }
 
       try {
-        // /api/articles -> list, ambil 3 terbaru
         const a = await fetch("/api/articles", { cache: "no-store" }).then(r => r.ok ? r.json() : []);
         const top3 = (Array.isArray(a) ? a : []).slice(0, 3);
         if (mounted) setArticles(top3);
@@ -346,16 +366,16 @@ export default function LandingPage() {
       {/* NAVBAR */}
       <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--bg)/80] backdrop-blur">
         <Container className="flex h-16 items-center justify-between">
-          <a href="#top" className="flex items-center gap-2">
+          <Link href="#top" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-xl bg-[var(--fg)]" />
             <span className="text-lg font-semibold tracking-tight">ASKCRAFT FURNITURE</span>
-          </a>
+          </Link>
           <nav className="hidden items-center gap-8 md:flex">
             {[{ href: "#layanan", label: "Layanan" }, { href: "#proses", label: "Proses" }, { href: "#material", label: "Material" }, { href: "#showcase", label: "Showcase" }, { href: "#kontak", label: "Kontak" }].map((l) => (
-              <a key={l.href} href={l.href} className="group relative text-sm text-[var(--fg-soft)] hover:text-[var(--fg)]">
+              <Link key={l.href} href={l.href} className="group relative text-sm text-[var(--fg-soft)] hover:text-[var(--fg)]">
                 {l.label}
                 <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-[var(--fg)] transition-all duration-300 group-hover:w-full" />
-              </a>
+              </Link>
             ))}
           </nav>
           <Button href="#kontak" className="group">Konsultasi Gratis <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" /></Button>
@@ -404,7 +424,7 @@ export default function LandingPage() {
             {title: "Kamar Tidur", cta: "Wardrobe & Bedframe", img: "https://images.unsplash.com/photo-1493666438817-866a91353ca9?q=80&w=2070&auto=format&fit=crop"},
             {title: "Ruang Kerja", cta: "Workstation", img: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=2070&auto=format&fit=crop"}
           ].map((it, i) => (
-            <a key={i} href="#showcase" className="group relative overflow-hidden rounded-2xl border border-[var(--line)]">
+            <Link key={i} href="#showcase" className="group relative overflow-hidden rounded-2xl border border-[var(--line)]">
               <img src={it.img} alt={it.title} className="h-60 w-full object-cover transition duration-500 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-[rgba(0,0,0,0.35)] via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4">
@@ -413,7 +433,7 @@ export default function LandingPage() {
                   {it.cta} <ArrowRight className="h-3.5 w-3.5" />
                 </div>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       </Section>
@@ -531,7 +551,7 @@ export default function LandingPage() {
         <Section id="artikel" subtitle="Wawasan" title="Artikel Terbaru">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {articles.map((a) => (
-              <a key={a.id} href={`/blog/${a.slug}`} className="overflow-hidden rounded-2xl border border-[var(--line)]">
+              <Link key={a.id} href={`/blog/${a.slug}`} className="overflow-hidden rounded-2xl border border-[var(--line)]">
                 <img
                   src={
                     a.coverUrl ||
@@ -544,7 +564,7 @@ export default function LandingPage() {
                   <div className="text-sm font-semibold">{a.title}</div>
                   <div className="mt-1 text-xs text-[var(--muted)]">Baca selengkapnya →</div>
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </Section>
