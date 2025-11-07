@@ -24,7 +24,7 @@ import {
 // ---------- Motion Variants ----------
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
 };
 
 const stagger = {
@@ -33,7 +33,7 @@ const stagger = {
 
 const floatIn = (delay = 0) => ({
   hidden: { opacity: 0, scale: 0.98, y: 12 },
-  show: { opacity: 1, scale: 1, y: 0, transition: { delay, duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
+  show: { opacity: 1, scale: 1, y: 0, transition: { delay, duration: 0.55, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
 });
 
 // ---------- Typed Helper Components ----------
