@@ -5,12 +5,16 @@
   --foreground: #171717;
 }
 
-@theme inline {
+:root inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
+
+::selection { background: #2ea37d; color: #0b0f0e; }
+::-webkit-scrollbar { height: 10px; width: 10px; }
+::-webkit-scrollbar-thumb { background: #1f2623; border-radius: 999px; }
 
 @media (prefers-color-scheme: dark) {
   :root {

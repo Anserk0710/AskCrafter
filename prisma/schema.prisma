@@ -1,0 +1,65 @@
+// prisma/schema.prisma
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  USER
+}
+
+enum MediaType {
+  image
+  video
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  password     String
+  name         String?
+  role         Role     @default(USER)
+
+  // Relasi
+  articles     Article[]
+  mediaUploads Media[]  @relation("UserMediaUploads")
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Article {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  slug      String   @unique
+  imageUrl  String?
+  published Boolean  @default(false)
+
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Media {
+  id         String    @id @default(cuid())
+  type       MediaType // kalau mau string biasa, ganti jadi: String
+  url        String    @unique
+  caption    String?
+
+  uploaderId String
+  uploader   User      @relation("UserMediaUploads", fields: [uploaderId], references: [id], onDelete: Cascade)
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([createdAt])
+}
