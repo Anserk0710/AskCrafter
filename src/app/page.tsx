@@ -18,10 +18,7 @@ import {
 } from "lucide-react";
 
 // ------------------------------------------------------------
-// Modern Light Theme – Foundry-inspired
-// - Switch to airy, editorial light palette with warm neutrals & gold accent
-// - Keep structure & micro-interactions; remove heavy dark overlays
-// - Maintain built-in DevTests (toggle with ?test=1)
+// Modern Light Theme – Foundry-inspired (typed & fixed)
 // ------------------------------------------------------------
 
 // ---------- Motion Variants ----------
@@ -31,9 +28,7 @@ const fadeUp = {
 };
 
 const stagger = {
-  show: {
-    transition: { staggerChildren: 0.12, delayChildren: 0.04 },
-  },
+  show: { transition: { staggerChildren: 0.12, delayChildren: 0.04 } },
 };
 
 const floatIn = (delay = 0) => ({
@@ -41,12 +36,20 @@ const floatIn = (delay = 0) => ({
   show: { opacity: 1, scale: 1, y: 0, transition: { delay, duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
 });
 
-// ---------- Helper Components ----------
-const Container = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+// ---------- Typed Helper Components ----------
+export type ClassableProps = { className?: string; children?: React.ReactNode };
+
+const Container: React.FC<ClassableProps> = ({ children, className = "" }) => (
   <div className={`mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 ${className}`}>{children}</div>
 );
 
-const Section = ({ id, title, subtitle, children, className = "" }: { id?: string; title?: string; subtitle?: string; children: React.ReactNode; className?: string }) => (
+interface SectionProps extends ClassableProps {
+  id?: string;
+  title?: React.ReactNode;
+  subtitle?: React.ReactNode;
+}
+
+const Section: React.FC<SectionProps> = ({ id, title, subtitle, children, className = "" }) => (
   <section id={id} className={`py-16 md:py-24 ${className}`}>
     <Container>
       {(title || subtitle) && (
@@ -74,47 +77,43 @@ const Section = ({ id, title, subtitle, children, className = "" }: { id?: strin
   </section>
 );
 
-const Badge = ({ children }: { children: React.ReactNode }) => (
+const Badge: React.FC<ClassableProps> = ({ children }) => (
   <span className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3 py-1 text-xs text-[var(--fg-soft)]">
     {children}
   </span>
 );
 
-const Card = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+const Card: React.FC<ClassableProps> = ({ children, className = "" }) => (
   <div className={`rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition will-change-transform hover:-translate-y-0.5 hover:shadow-[0_10px_40px_rgba(0,0,0,0.09)] ${className}`}>{children}</div>
 );
 
-const Button = ({ children, href, variant = "solid", className = "" }: { children: React.ReactNode; href: string; variant?: string; className?: string }) => {
-  // Responsif: kecilkan ukuran di HP
-  const base = "relative inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:px-5 sm:py-3 sm:text-sm font-semibold transition whitespace-nowrap";
+type ButtonProps = ClassableProps & { href?: string; variant?: "solid" | "outline" };
+const Button: React.FC<ButtonProps> = ({ children, href = "#", variant = "solid", className = "" }) => {
+  // compact on phones; grow on ≥sm
+  const base = "relative inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] leading-none sm:px-5 sm:py-3 sm:text-sm font-semibold transition whitespace-nowrap min-h-0 max-h-9";
   const styles =
     variant === "solid"
       ? "bg-[var(--fg)] text-[var(--bg)] hover:opacity-90"
       : "border border-[var(--line)] bg-transparent text-[var(--fg)] hover:bg-[var(--surface-strong)]";
   return (
-    <motion.a href={href} whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} className={`${base} ${styles} ${className}`}>
+    <motion.a href={href} whileHover={{ y: -1 }} whileTap={{ scale: 0.98 }} className={`${base} ${styles} btn-compact ${className}`}>
       {children}
     </motion.a>
   );
 };
 
-const ScrollProgress = () => {
+const ScrollProgress: React.FC = () => {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 20, mass: 0.2 });
-  return (
-    <motion.div
-      style={{ scaleX }}
-      className="fixed left-0 top-0 z-[60] h-[3px] w-full origin-left bg-[var(--accent)]"
-    />
-  );
+  return <motion.div style={{ scaleX }} className="fixed left-0 top-0 z-[60] h-[3px] w-full origin-left bg-[var(--accent)]" />;
 };
 
 // Light shimmer behind hero text (very subtle)
-const SoftGlow = () => (
+const SoftGlow: React.FC = () => (
   <div className="pointer-events-none absolute -inset-x-10 top-1/4 -z-10 h-64 rounded-[56px] bg-[radial-gradient(50%_60%_at_50%_50%,rgba(210,164,86,0.14),rgba(210,164,86,0)_70%)] blur-2xl" />
 );
 
-const AnnouncementBar = () => (
+const AnnouncementBar: React.FC = () => (
   <div className="sticky top-0 z-[60] w-full border-b border-[var(--line)] bg-[var(--bg-soft)] text-[var(--fg)]">
     <div className="mx-auto flex h-9 w-full max-w-7xl items-center justify-center px-4 text-xs">
       <span className="truncate">Koleksi baru diunggah mingguan · Dapatkan penawaran eksklusif melalui newsletter</span>
@@ -123,14 +122,18 @@ const AnnouncementBar = () => (
 );
 
 // ---------- Dev Test Harness (toggle with ?test=1) ----------
-function DevTests({ services, materials, gallery }) {
-  const [results, setResults] = useState([]);
+function DevTests({ services, materials, gallery }: { services: any[]; materials: any[]; gallery: string[] }) {
+  const [results, setResults] = useState<{ name: string; pass: boolean }[]>([]);
   useEffect(() => {
-    const r = [];
+    const r: { name: string; pass: boolean }[] = [];
     r.push({ name: "services length == 4", pass: Array.isArray(services) && services.length === 4 });
     r.push({ name: "materials length == 4", pass: Array.isArray(materials) && materials.length === 4 });
     r.push({ name: "gallery length == 6", pass: Array.isArray(gallery) && gallery.length === 6 });
     r.push({ name: "data-theme is light", pass: document.documentElement.getAttribute('data-theme') === 'light' });
+    // extra tests (do not modify existing):
+    r.push({ name: "navbar exists", pass: !!document.querySelector('header') });
+    r.push({ name: "footer exists", pass: !!document.querySelector('footer') });
+    r.push({ name: "CTA compact button exists", pass: !!document.querySelector('a.btn-compact') });
     setResults(r);
   }, [services, materials, gallery]);
 
@@ -153,8 +156,8 @@ function DevTests({ services, materials, gallery }) {
 
 // ---------- Main Page ----------
 export default function LandingPage() {
-  const [activeMaterial, setActiveMaterial] = useState("Kayu Solid");
-  const [showTests, setShowTests] = useState(false);
+  const [activeMaterial, setActiveMaterial] = useState<string>("Kayu Solid");
+  const [showTests, setShowTests] = useState<boolean>(false);
 
   useEffect(() => {
     // Apply light theme via data attribute (for tests & theming)
@@ -162,18 +165,19 @@ export default function LandingPage() {
     document.documentElement.setAttribute('data-theme', 'light');
 
     // smooth scrolling for internal anchors
-    const handler = (e) => {
-      const a = e.target.closest('a[href^="#"]');
+    const handler = (e: Event) => {
+      const tgt = e.target as HTMLElement | null;
+      const a = tgt?.closest('a[href^="#"]') as HTMLAnchorElement | null;
       if (!a) return;
       const id = a.getAttribute('href');
       if (!id || id === '#') return;
       const el = document.querySelector(id);
       if (el) {
         e.preventDefault();
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        (el as HTMLElement).scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     };
-    document.addEventListener('click', handler);
+    document.addEventListener('click', handler as EventListener);
 
     // enable dev tests if ?test=1
     try {
@@ -182,7 +186,7 @@ export default function LandingPage() {
     } catch (_) {}
 
     return () => {
-      document.removeEventListener('click', handler);
+      document.removeEventListener('click', handler as EventListener);
       // restore theme if previously set
       if (prev) document.documentElement.setAttribute('data-theme', prev);
     };
@@ -212,26 +216,10 @@ export default function LandingPage() {
   ];
 
   const services = [
-    {
-      icon: <Ruler className="h-6 w-6" />,
-      title: "Desain & Konsultasi",
-      desc: "Diskusikan gaya, fungsi, dan ukuran. Kami terjemahkan kebutuhan Anda menjadi blueprint presisi.",
-    },
-    {
-      icon: <Hammer className="h-6 w-6" />,
-      title: "Produksi Kustom",
-      desc: "Dikerjakan pengrajin berpengalaman dengan standar workshop industrial dan QC berlapis.",
-    },
-    {
-      icon: <Palette className="h-6 w-6" />,
-      title: "Finishing Premium",
-      desc: "Pilihan finishing matte, satin, high-gloss, hingga tekstur natural yang tahan lama.",
-    },
-    {
-      icon: <Armchair className="h-6 w-6" />,
-      title: "Instalasi & Garansi",
-      desc: "Tim onsite memastikan pemasangan rapi. Garansi material & pengerjaan untuk ketenangan Anda.",
-    },
+    { icon: <Ruler className="h-6 w-6" />, title: "Desain & Konsultasi", desc: "Diskusikan gaya, fungsi, dan ukuran. Kami terjemahkan kebutuhan Anda menjadi blueprint presisi." },
+    { icon: <Hammer className="h-6 w-6" />, title: "Produksi Kustom", desc: "Dikerjakan pengrajin berpengalaman dengan standar workshop industrial dan QC berlapis." },
+    { icon: <Palette className="h-6 w-6" />, title: "Finishing Premium", desc: "Pilihan finishing matte, satin, high-gloss, hingga tekstur natural yang tahan lama." },
+    { icon: <Armchair className="h-6 w-6" />, title: "Instalasi & Garansi", desc: "Tim onsite memastikan pemasangan rapi. Garansi material & pengerjaan untuk ketenangan Anda." },
   ];
 
   const gallery = [
@@ -261,12 +249,12 @@ export default function LandingPage() {
         .font-display{ font-family: ui-serif, "Georgia", "Times New Roman", serif; }
       `}</style>
 
-      {/* <AnnouncementBar /> */}
+      <AnnouncementBar />
       <ScrollProgress />
 
       {/* NAVBAR */}
       <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--bg)/80] backdrop-blur">
-        <Container className="flex h-16 items-center justify-between">
+        <Container className="flex items-center justify-between py-2.5 sm:h-16 sm:py-4">
           <a href="#" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-xl bg-[var(--fg)]" />
             <span className="text-lg font-semibold tracking-tight">ASKCRAFT FURNITURE</span>
@@ -280,9 +268,9 @@ export default function LandingPage() {
             ))}
           </nav>
           <Button href="#kontak" className="group">
-            <span className="sm:hidden">Konsultasi</span>
-            <span className="hidden sm:inline">Konsultasi Gratis</span>
-            <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition group-hover:translate-x-0.5" />
+            <span className="btn-label-short sm:hidden">Konsultasi</span>
+            <span className="btn-label-long hidden sm:inline">Konsultasi Gratis</span>
+            <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 transition group-hover:translate-x-0.5" />
           </Button>
         </Container>
       </header>
@@ -545,6 +533,15 @@ export default function LandingPage() {
           </div>
         </Container>
       </footer>
+
+      {/* tiny responsive tweak for very narrow phones */}
+      <style>{`
+        @media (max-width: 380px){
+          .btn-compact{ padding: 6px 10px; font-size: 10px; }
+          .btn-label-long{ display:none !important; }
+          .btn-label-short{ display:inline !important; }
+        }
+      `}</style>
 
       {showTests && <DevTests services={services} materials={materials} gallery={gallery} />}
     </div>
