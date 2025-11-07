@@ -42,11 +42,11 @@ const floatIn = (delay = 0) => ({
 });
 
 // ---------- Helper Components ----------
-const Container = ({ children, className = "" }) => (
+const Container = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
   <div className={`mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 ${className}`}>{children}</div>
 );
 
-const Section = ({ id, title, subtitle, children, className = "" }) => (
+const Section = ({ id, title, subtitle, children, className = "" }: { id?: string; title?: string; subtitle?: string; children: React.ReactNode; className?: string }) => (
   <section id={id} className={`py-16 md:py-24 ${className}`}>
     <Container>
       {(title || subtitle) && (
@@ -74,17 +74,17 @@ const Section = ({ id, title, subtitle, children, className = "" }) => (
   </section>
 );
 
-const Badge = ({ children }) => (
+const Badge = ({ children }: { children: React.ReactNode }) => (
   <span className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3 py-1 text-xs text-[var(--fg-soft)]">
     {children}
   </span>
 );
 
-const Card = ({ children, className = "" }) => (
+const Card = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
   <div className={`rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition will-change-transform hover:-translate-y-0.5 hover:shadow-[0_10px_40px_rgba(0,0,0,0.09)] ${className}`}>{children}</div>
 );
 
-const Button = ({ children, href, variant = "solid", className = "" }) => {
+const Button = ({ children, href, variant = "solid", className = "" }: { children: React.ReactNode; href: string; variant?: string; className?: string }) => {
   // Responsif: kecilkan ukuran di HP
   const base = "relative inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:px-5 sm:py-3 sm:text-sm font-semibold transition whitespace-nowrap";
   const styles =
