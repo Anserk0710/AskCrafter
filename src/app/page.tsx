@@ -261,7 +261,7 @@ export default function LandingPage() {
         .font-display{ font-family: ui-serif, "Georgia", "Times New Roman", serif; }
       `}</style>
 
-      <AnnouncementBar />
+      {/* <AnnouncementBar /> */}
       <ScrollProgress />
 
       {/* NAVBAR */}
