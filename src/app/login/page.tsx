@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Eye, EyeOff, LogIn, Mail, Lock } from 'lucide-react';
 
-export default function LoginPage() {
+function LoginForm() {
   const q = useSearchParams();
   const nextUrl = useMemo(() => q.get('next') || '/admin', [q]);
   const [email, setEmail] = useState('');
@@ -13,9 +13,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  useEffect(() => {
-    setErr(null);
-  }, [email, password]);
+  // Clear error when inputs change
+  const clearError = () => setErr(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -154,5 +153,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }
