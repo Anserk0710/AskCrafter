@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import React, { useEffect, useState } from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
 import {
   Hammer,
@@ -18,17 +17,17 @@ import {
   CheckCircle,
 } from "lucide-react";
 
-// ---------- Easing (tuple aman untuk TS) ----------
-const EASE = [0.22, 1, 0.36, 1] as [number, number, number, number];
+// ------------------------------------------------------------
+// Modern Light Theme – Foundry-inspired
+// - Switch to airy, editorial light palette with warm neutrals & gold accent
+// - Keep structure & micro-interactions; remove heavy dark overlays
+// - Maintain built-in DevTests (toggle with ?test=1)
+// ------------------------------------------------------------
 
 // ---------- Motion Variants ----------
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: EASE },
-  },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
 };
 
 const stagger = {
@@ -39,26 +38,15 @@ const stagger = {
 
 const floatIn = (delay = 0) => ({
   hidden: { opacity: 0, scale: 0.98, y: 12 },
-  show: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: { delay, duration: 0.55, ease: EASE },
-  },
+  show: { opacity: 1, scale: 1, y: 0, transition: { delay, duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
 });
 
 // ---------- Helper Components ----------
-const Container = ({ children, className = "" }: React.PropsWithChildren<{ className?: string }>) => (
+const Container = ({ children, className = "" }) => (
   <div className={`mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 ${className}`}>{children}</div>
 );
 
-const Section = ({
-  id,
-  title,
-  subtitle,
-  children,
-  className = "",
-}: React.PropsWithChildren<{ id?: string; title?: string; subtitle?: string; className?: string }>) => (
+const Section = ({ id, title, subtitle, children, className = "" }) => (
   <section id={id} className={`py-16 md:py-24 ${className}`}>
     <Container>
       {(title || subtitle) && (
@@ -86,42 +74,27 @@ const Section = ({
   </section>
 );
 
-const Badge = ({ children }: React.PropsWithChildren) => (
+const Badge = ({ children }) => (
   <span className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3 py-1 text-xs text-[var(--fg-soft)]">
     {children}
   </span>
 );
 
-const Card = ({ children, className = "" }: React.PropsWithChildren<{ className?: string }>) => (
+const Card = ({ children, className = "" }) => (
   <div className={`rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition will-change-transform hover:-translate-y-0.5 hover:shadow-[0_10px_40px_rgba(0,0,0,0.09)] ${className}`}>{children}</div>
 );
 
-const Button = ({
-  children,
-  href,
-  variant = "solid",
-  className = "",
-}: React.PropsWithChildren<{ href?: string; variant?: "solid" | "outline"; className?: string }>) => {
-  const base = "relative inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition";
+const Button = ({ children, href, variant = "solid", className = "" }) => {
+  // Responsif: kecilkan ukuran di HP
+  const base = "relative inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:px-5 sm:py-3 sm:text-sm font-semibold transition whitespace-nowrap";
   const styles =
     variant === "solid"
       ? "bg-[var(--fg)] text-[var(--bg)] hover:opacity-90"
       : "border border-[var(--line)] bg-transparent text-[var(--fg)] hover:bg-[var(--surface-strong)]";
-
-  if (href) {
-    // pakai Link untuk route internal; masih aman untuk #anchor juga
-    return (
-      <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} className={`${base} ${styles} ${className}`}>
-        <Link href={href} className="inline-flex items-center gap-2">
-          {children}
-        </Link>
-      </motion.div>
-    );
-  }
   return (
-    <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} className={`${base} ${styles} ${className}`}>
+    <motion.a href={href} whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} className={`${base} ${styles} ${className}`}>
       {children}
-    </motion.button>
+    </motion.a>
   );
 };
 
@@ -136,6 +109,7 @@ const ScrollProgress = () => {
   );
 };
 
+// Light shimmer behind hero text (very subtle)
 const SoftGlow = () => (
   <div className="pointer-events-none absolute -inset-x-10 top-1/4 -z-10 h-64 rounded-[56px] bg-[radial-gradient(50%_60%_at_50%_50%,rgba(210,164,86,0.14),rgba(210,164,86,0)_70%)] blur-2xl" />
 );
@@ -148,11 +122,11 @@ const AnnouncementBar = () => (
   </div>
 );
 
-// ---------- Dev Test Harness (toggle dengan ?test=1) ----------
-function DevTests({ services, materials, gallery }: { services: any[]; materials: any[]; gallery: any[] }) {
-  const [results, setResults] = useState<{ name: string; pass: boolean }[]>([]);
+// ---------- Dev Test Harness (toggle with ?test=1) ----------
+function DevTests({ services, materials, gallery }) {
+  const [results, setResults] = useState([]);
   useEffect(() => {
-    const r: { name: string; pass: boolean }[] = [];
+    const r = [];
     r.push({ name: "services length == 4", pass: Array.isArray(services) && services.length === 4 });
     r.push({ name: "materials length == 4", pass: Array.isArray(materials) && materials.length === 4 });
     r.push({ name: "gallery length == 6", pass: Array.isArray(gallery) && gallery.length === 6 });
@@ -177,80 +151,23 @@ function DevTests({ services, materials, gallery }: { services: any[]; materials
   );
 }
 
-// ---------- Main Page (with API integration) ----------
+// ---------- Main Page ----------
 export default function LandingPage() {
   const [activeMaterial, setActiveMaterial] = useState("Kayu Solid");
   const [showTests, setShowTests] = useState(false);
 
-  // API data
-  const [gallery, setGallery] = useState<{ type: "image" | "video"; url: string }[]>([]);
-  const [articles, setArticles] = useState<{ id: string; title: string; slug: string; coverUrl?: string }[]>([]);
-  const [submitting, setSubmitting] = useState(false);
-
-  // static data
-  const materials = useMemo(
-    () => [
-      {
-        name: "Kayu Solid",
-        desc: "Oak & teak bersertifikasi, tahan lama, serat natural elegan.",
-        img: "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?q=80&w=1974&auto=format&fit=crop",
-      },
-      {
-        name: "Veneer & Plywood",
-        desc: "Ringan, stabil, tampilan premium dengan biaya efisien.",
-        img: "https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?q=80&w=1974&auto=format&fit=crop",
-      },
-      {
-        name: "Metal & Powdercoat",
-        desc: "Rangka kokoh, garis modern, finishing tahan gores.",
-        img: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1974&auto=format&fit=crop",
-      },
-      {
-        name: "Upholstery",
-        desc: "Fabric & kulit microfibre, nyaman dan mudah dirawat.",
-        img: "https://images.unsplash.com/photo-1501045661006-2f8a5f0c02f1?q=80&w=1974&auto=format&fit=crop",
-      },
-    ],
-    []
-  );
-
-  const services = useMemo(
-    () => [
-      {
-        icon: <Ruler className="h-6 w-6" />,
-        title: "Desain & Konsultasi",
-        desc: "Diskusikan gaya, fungsi, dan ukuran. Kami terjemahkan kebutuhan Anda menjadi blueprint presisi.",
-      },
-      {
-        icon: <Hammer className="h-6 w-6" />,
-        title: "Produksi Kustom",
-        desc: "Dikerjakan pengrajin berpengalaman dengan standar workshop industrial dan QC berlapis.",
-      },
-      {
-        icon: <Palette className="h-6 w-6" />,
-        title: "Finishing Premium",
-        desc: "Pilihan finishing matte, satin, high-gloss, hingga tekstur natural yang tahan lama.",
-      },
-      {
-        icon: <Armchair className="h-6 w-6" />,
-        title: "Instalasi & Garansi",
-        desc: "Tim onsite memastikan pemasangan rapi. Garansi material & pengerjaan untuk ketenangan Anda.",
-      },
-    ],
-    []
-  );
-
-  // Theme + smooth anchor + DevTests toggle
   useEffect(() => {
+    // Apply light theme via data attribute (for tests & theming)
     const prev = document.documentElement.getAttribute('data-theme');
     document.documentElement.setAttribute('data-theme', 'light');
 
-    const handler = (e: any) => {
-      const a = e.target.closest('a[href^="#"]') as HTMLAnchorElement | null;
+    // smooth scrolling for internal anchors
+    const handler = (e) => {
+      const a = e.target.closest('a[href^="#"]');
       if (!a) return;
       const id = a.getAttribute('href');
       if (!id || id === '#') return;
-      const el = document.querySelector(id) as HTMLElement | null;
+      const el = document.querySelector(id);
       if (el) {
         e.preventDefault();
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -258,137 +175,126 @@ export default function LandingPage() {
     };
     document.addEventListener('click', handler);
 
+    // enable dev tests if ?test=1
     try {
       const q = new URLSearchParams(window.location.search);
       setShowTests(q.get('test') === '1');
-    } catch {}
+    } catch (_) {}
 
     return () => {
       document.removeEventListener('click', handler);
+      // restore theme if previously set
       if (prev) document.documentElement.setAttribute('data-theme', prev);
     };
   }, []);
 
-  // Fetch media (showcase) dan articles dari API
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const m = await fetch("/api/media", { cache: "no-store" }).then(r => r.ok ? r.json() : []);
-        const mapped: { type: "image" | "video"; url: string }[] = Array.isArray(m)
-          ? m.map((x: any) => ({ type: (x.type === "video" ? "video" : "image"), url: String(x.url) }))
-          : [];
+  const materials = [
+    {
+      name: "Kayu Solid",
+      desc: "Oak & teak bersertifikasi, tahan lama, serat natural elegan.",
+      img: "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?q=80&w=1974&auto=format&fit=crop",
+    },
+    {
+      name: "Veneer & Plywood",
+      desc: "Ringan, stabil, tampilan premium dengan biaya efisien.",
+      img: "https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?q=80&w=1974&auto=format&fit=crop",
+    },
+    {
+      name: "Metal & Powdercoat",
+      desc: "Rangka kokoh, garis modern, finishing tahan gores.",
+      img: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1974&auto=format&fit=crop",
+    },
+    {
+      name: "Upholstery",
+      desc: "Fabric & kulit microfibre, nyaman dan mudah dirawat.",
+      img: "https://images.unsplash.com/photo-1501045661006-2f8a5f0c02f1?q=80&w=1974&auto=format&fit=crop",
+    },
+  ];
 
-        const fallbacks = [
-          { type: "image", url: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=2070&auto=format&fit=crop" },
-          { type: "image", url: "https://images.unsplash.com/photo-1493666438817-866a91353ca9?q=80&w=2070&auto=format&fit=crop" },
-          { type: "image", url: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=2070&auto=format&fit=crop" },
-          { type: "image", url: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?q=80&w=2069&auto=format&fit=crop" },
-          { type: "image", url: "https://images.unsplash.com/photo-1503602642458-232111445657?q=80&w=2080&auto=format&fit=crop" },
-          { type: "image", url: "https://images.unsplash.com/photo-1484101403633-562f891dc89a?q=80&w=2070&auto=format&fit=crop" },
-        ] as { type: "image" | "video"; url: string }[];
+  const services = [
+    {
+      icon: <Ruler className="h-6 w-6" />,
+      title: "Desain & Konsultasi",
+      desc: "Diskusikan gaya, fungsi, dan ukuran. Kami terjemahkan kebutuhan Anda menjadi blueprint presisi.",
+    },
+    {
+      icon: <Hammer className="h-6 w-6" />,
+      title: "Produksi Kustom",
+      desc: "Dikerjakan pengrajin berpengalaman dengan standar workshop industrial dan QC berlapis.",
+    },
+    {
+      icon: <Palette className="h-6 w-6" />,
+      title: "Finishing Premium",
+      desc: "Pilihan finishing matte, satin, high-gloss, hingga tekstur natural yang tahan lama.",
+    },
+    {
+      icon: <Armchair className="h-6 w-6" />,
+      title: "Instalasi & Garansi",
+      desc: "Tim onsite memastikan pemasangan rapi. Garansi material & pengerjaan untuk ketenangan Anda.",
+    },
+  ];
 
-        const finalGallery = (mapped.slice(0, 6).concat(fallbacks)).slice(0, 6);
-        if (mounted) setGallery(finalGallery);
-      } catch {
-        const fallback = [
-          "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=2070&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1493666438817-866a91353ca9?q=80&w=2070&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=2070&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1493809842364-78817add7ffb?q=80&w=2069&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1503602642458-232111445657?q=80&w=2080&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1484101403633-562f891dc89a?q=80&w=2070&auto=format&fit=crop",
-        ].map(u => ({ type: "image" as const, url: u }));
-        if (mounted) setGallery(fallback);
-      }
-
-      try {
-        const a = await fetch("/api/articles", { cache: "no-store" }).then(r => r.ok ? r.json() : []);
-        const top3 = (Array.isArray(a) ? a : []).slice(0, 3);
-        if (mounted) setArticles(top3);
-      } catch {
-        if (mounted) setArticles([]);
-      }
-    })();
-    return () => { mounted = false; };
-  }, []);
-
-  // Contact form submit -> /api/members
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (submitting) return;
-    const fd = new FormData(e.currentTarget);
-    const payload = {
-      name: String(fd.get("name") || "").trim(),
-      email: String(fd.get("email") || "").trim() || undefined,
-      phone: String(fd.get("phone") || "").trim() || undefined,
-      notes: String(fd.get("notes") || "").trim() || undefined,
-      status: "active",
-    };
-    setSubmitting(true);
-    try {
-      const res = await fetch("/api/members", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Failed");
-      (e.target as HTMLFormElement).reset();
-      alert("Terima kasih! Brief Anda sudah kami terima.");
-    } catch {
-      alert("Gagal mengirim brief. Coba lagi ya.");
-    } finally {
-      setSubmitting(false);
-    }
-  }
+  const gallery = [
+    "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1493666438817-866a91353ca9?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1493809842364-78817add7ffb?q=80&w=2069&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1503602642458-232111445657?q=80&w=2080&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1484101403633-562f891dc89a?q=80&w=2070&auto=format&fit=crop",
+  ];
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--fg)] selection:bg-[var(--accent)/15]">
       {/* CSS Variables for theme */}
       <style>{`
         :root {
-          --bg: #faf7f3;
-          --bg-soft: #fffaf3;
-          --surface: #ffffff;
-          --surface-strong: #f6f2ea;
-          --fg: #0f0f0f;
-          --fg-soft: #3f3a34;
-          --muted: #7d7468;
-          --line: rgba(15,15,15,0.12);
-          --accent: #d2a456;
+          --bg: #faf7f3; /* warm paper */
+          --bg-soft: #fffaf3; /* subtle cream */
+          --surface: #ffffff; /* cards */
+          --surface-strong: #f6f2ea; /* hovers */
+          --fg: #0f0f0f; /* ink */
+          --fg-soft: #3f3a34; /* muted text */
+          --muted: #7d7468; /* captions */
+          --line: rgba(15,15,15,0.12); /* hairline */
+          --accent: #d2a456; /* gold accent */
         }
         .font-display{ font-family: ui-serif, "Georgia", "Times New Roman", serif; }
       `}</style>
 
-      {/* <AnnouncementBar /> */}
+      <AnnouncementBar />
       <ScrollProgress />
 
       {/* NAVBAR */}
       <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--bg)/80] backdrop-blur">
         <Container className="flex h-16 items-center justify-between">
-          <Link href="#top" className="flex items-center gap-2">
+          <a href="#" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-xl bg-[var(--fg)]" />
             <span className="text-lg font-semibold tracking-tight">ASKCRAFT FURNITURE</span>
-          </Link>
+          </a>
           <nav className="hidden items-center gap-8 md:flex">
             {[{ href: "#layanan", label: "Layanan" }, { href: "#proses", label: "Proses" }, { href: "#material", label: "Material" }, { href: "#showcase", label: "Showcase" }, { href: "#kontak", label: "Kontak" }].map((l) => (
-              <Link key={l.href} href={l.href} className="group relative text-sm text-[var(--fg-soft)] hover:text-[var(--fg)]">
+              <a key={l.href} href={l.href} className="group relative text-sm text-[var(--fg-soft)] hover:text-[var(--fg)]">
                 {l.label}
                 <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-[var(--fg)] transition-all duration-300 group-hover:w-full" />
-              </Link>
+              </a>
             ))}
           </nav>
-          <Button href="#kontak" className="group">Konsultasi Gratis <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" /></Button>
+          <Button href="#kontak" className="group">
+            <span className="sm:hidden">Konsultasi</span>
+            <span className="hidden sm:inline">Konsultasi Gratis</span>
+            <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition group-hover:translate-x-0.5" />
+          </Button>
         </Container>
       </header>
 
       {/* HERO */}
-      <section id="top" className="relative flex min-h-[88vh] items-center overflow-hidden">
+      <section className="relative flex min-h-[88vh] items-center overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1503602642458-232111445657?q=80&w=2070&auto=format&fit=crop"
           alt="Hero background"
           className="absolute inset-0 h-full w-full object-cover"
         />
+        {/* Fade to light instead of dark */}
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg)] via-[var(--bg)/70] to-transparent" />
         <Container>
           <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }} className="relative z-10 max-w-2xl py-24">
@@ -424,7 +330,7 @@ export default function LandingPage() {
             {title: "Kamar Tidur", cta: "Wardrobe & Bedframe", img: "https://images.unsplash.com/photo-1493666438817-866a91353ca9?q=80&w=2070&auto=format&fit=crop"},
             {title: "Ruang Kerja", cta: "Workstation", img: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=2070&auto=format&fit=crop"}
           ].map((it, i) => (
-            <Link key={i} href="#showcase" className="group relative overflow-hidden rounded-2xl border border-[var(--line)]">
+            <a key={i} href="#showcase" className="group relative overflow-hidden rounded-2xl border border-[var(--line)]">
               <img src={it.img} alt={it.title} className="h-60 w-full object-cover transition duration-500 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-[rgba(0,0,0,0.35)] via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4">
@@ -433,7 +339,7 @@ export default function LandingPage() {
                   {it.cta} <ArrowRight className="h-3.5 w-3.5" />
                 </div>
               </div>
-            </Link>
+            </a>
           ))}
         </div>
       </Section>
@@ -523,19 +429,13 @@ export default function LandingPage() {
         </div>
       </Section>
 
-      {/* SHOWCASE (from /api/media) */}
+      {/* SHOWCASE */}
       <Section id="showcase" subtitle="Kumpulan Karya" title="Showcase Terbaru">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {gallery.map((g, i) => (
+          {gallery.map((src, i) => (
             <motion.div key={i} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: i * 0.05 }}>
               <div className="group relative overflow-hidden rounded-2xl border border-[var(--line)]">
-                {g.type === "video" ? (
-                  <video controls preload="metadata" className="h-64 w-full object-cover">
-                    <source src={g.url} />
-                  </video>
-                ) : (
-                  <motion.img whileHover={{ scale: 1.06 }} src={g.url} alt={`Showcase ${i + 1}`} className="h-64 w-full object-cover" />
-                )}
+                <motion.img whileHover={{ scale: 1.06 }} src={src} alt={`Showcase ${i + 1}`} className="h-64 w-full object-cover" />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[rgba(0,0,0,0.25)] via-transparent to-transparent opacity-0 transition group-hover:opacity-100" />
               </div>
             </motion.div>
@@ -546,31 +446,57 @@ export default function LandingPage() {
         </div>
       </Section>
 
-      {/* ARTICLES (optional highlight from /api/articles) */}
-      {articles.length > 0 && (
-        <Section id="artikel" subtitle="Wawasan" title="Artikel Terbaru">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {articles.map((a) => (
-              <Link key={a.id} href={`/blog/${a.slug}`} className="overflow-hidden rounded-2xl border border-[var(--line)]">
-                <img
-                  src={
-                    a.coverUrl ||
-                    "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?q=80&w=1200&auto=format&fit=crop"
-                  }
-                  alt={a.title}
-                  className="h-44 w-full object-cover"
-                />
-                <div className="p-5">
-                  <div className="text-sm font-semibold">{a.title}</div>
-                  <div className="mt-1 text-xs text-[var(--muted)]">Baca selengkapnya →</div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </Section>
-      )}
+      {/* TESTIMONIALS */}
+      <Section subtitle="Apa Kata Klien" title="Testimoni">
+        <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }} className="grid gap-6 md:grid-cols-3">
+          {[{
+            name: "Raka – Jakarta",
+            text: "Built-in wardrobe sangat presisi. Finishing matte-nya rapi dan tidak berbau. Proses dari desain sampai instalasi mulus.",
+          }, {
+            name: "Cindy – Bandung",
+            text: "Tim responsif dengan render 3D yang detail. Sofa custom terasa premium, dudukannya nyaman sekali.",
+          }, {
+            name: "Adit – Surabaya",
+            text: "Rak display toko kami terlihat modern dan kokoh. Deadlinenya tepat waktu, recommended!",
+          }].map((t, i) => (
+            <motion.div key={i} variants={fadeUp}>
+              <Card>
+                <p className="text-sm leading-relaxed text-[var(--fg-soft)]">“{t.text}”</p>
+                <div className="mt-4 text-sm font-semibold text-[var(--fg)]">{t.name}</div>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
+      </Section>
 
-      {/* CTA + Contact form -> /api/members */}
+      {/* POPULAR PRODUCTS */}
+      <Section id="produk" subtitle="Populer Saat Ini" title="Produk Kustom Favorit">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+          {[
+            {name: "Wardrobe Sliding Minimalis", price: "Mulai 7,5 jt", img: gallery[1]},
+            {name: "Kitchen Set Letter L", price: "Mulai 12 jt", img: gallery[2]},
+            {name: "TV Cabinet Floating", price: "Mulai 3,5 jt", img: gallery[0]},
+            {name: "Meja Kerja Industrial", price: "Mulai 2,9 jt", img: gallery[3]},
+            {name: "Rak Display Retail", price: "Mulai 4,2 jt", img: gallery[4]},
+            {name: "Bedframe Upholstery", price: "Mulai 6,8 jt", img: gallery[5]},
+          ].map((p, i) => (
+            <div key={i} className="rounded-2xl border border-[var(--line)] p-2">
+              <div className="overflow-hidden rounded-xl">
+                <img src={p.img} alt={p.name} className="h-56 w-full object-cover transition duration-500 hover:scale-105" />
+              </div>
+              <div className="mt-3 flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-sm font-semibold">{p.name}</div>
+                  <div className="text-xs text-[var(--muted)]">{p.price}</div>
+                </div>
+                <Button href="#kontak" className="px-3 py-2 text-xs">Ajukan Penawaran</Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* CTA */}
       <Section id="kontak" className="pt-0">
         <div className="relative overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-8 md:p-12">
           <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[var(--surface-strong)] blur-3xl" />
@@ -593,14 +519,12 @@ export default function LandingPage() {
             </div>
             <Card>
               <h4 className="text-lg font-semibold">Form Singkat</h4>
-              <form onSubmit={handleSubmit} className="mt-4 grid gap-4 md:grid-cols-2">
-                <input name="name" required className="col-span-2 rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none placeholder:text-[var(--muted)]" placeholder="Nama" />
-                <input name="email" type="email" className="col-span-2 md:col-span-1 rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none placeholder:text-[var(--muted)]" placeholder="Email" />
-                <input name="phone" className="col-span-2 md:col-span-1 rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none placeholder:text-[var(--muted)]" placeholder="Telepon" />
-                <textarea name="notes" rows={4} className="col-span-2 rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none placeholder:text-[var(--muted)]" placeholder="Ceritakan kebutuhan Anda (ukuran, gaya, deadline)"></textarea>
-                <Button className="col-span-2 justify-center" variant="solid">
-                  {submitting ? "Mengirim..." : <>Kirim Brief <ArrowRight className="h-4 w-4" /></>}
-                </Button>
+              <form className="mt-4 grid gap-4 md:grid-cols-2">
+                <input className="col-span-2 rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none placeholder:text-[var(--muted)]" placeholder="Nama" />
+                <input className="col-span-2 md:col-span-1 rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none placeholder:text-[var(--muted)]" placeholder="Email" />
+                <input className="col-span-2 md:col-span-1 rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none placeholder:text-[var(--muted)]" placeholder="Telepon" />
+                <textarea rows={4} className="col-span-2 rounded-xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none placeholder:text-[var(--muted)]" placeholder="Ceritakan kebutuhan Anda (ukuran, gaya, deadline)"></textarea>
+                <Button href="#" className="col-span-2 justify-center">Kirim Brief <ArrowRight className="h-4 w-4" /></Button>
               </form>
             </Card>
           </div>
